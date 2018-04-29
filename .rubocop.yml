@@ -51,3 +51,7 @@ Layout/MultilineMethodCallIndentation:
 # since they don't exist before Ruby 2.3 or Rails 5 and can be ambiguous.
 Style/NumericPredicate:
   EnforcedStyle: comparison
+
+# Allow shorter argument names like `ip`.
+Naming/UncommunicativeMethodParamName:
+  MinNameLength: 2
