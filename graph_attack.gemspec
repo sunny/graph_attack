@@ -19,8 +19,21 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
+  # This gem is an analyser for the GraphQL ruby gem.
+  spec.add_dependency 'graphql', '>= 1.7.9'
+
+  # A Redis-backed rate limiter.
+  spec.add_dependency 'ratelimit', '>= 1.0.3'
+
+  # Loads local dependencies.
   spec.add_development_dependency 'bundler', '~> 1.16'
+
+  # Development tasks runner.
   spec.add_development_dependency 'rake', '~> 10.0'
+
+  # Testing framework.
   spec.add_development_dependency 'rspec', '~> 3.0'
+
+  # Ruby code linter.
   spec.add_development_dependency 'rubocop', '~> 0.55'
 end
