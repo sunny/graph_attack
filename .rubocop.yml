@@ -1,0 +1,53 @@
+AllCops:
+  TargetRubyVersion: 2.3
+  DisplayCopNames: true
+
+# Do not sort gems in Gemfile, since we are grouping them by functionality.
+Bundler/OrderedGems:
+  Enabled: false
+
+# Trailing commas are required on multiline method arguments.
+Style/TrailingCommaInArguments:
+  EnforcedStyleForMultiline: comma
+
+# Trailing commas are required in multiline arrays.
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: comma
+
+# Trailing commas are required in multiline hashes.
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: comma
+
+# Allow indenting multiline chained operations.
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+# Limit method length (default is 10).
+Metrics/MethodLength:
+  Max: 15
+
+# Do not require `# frozen_string_literal: true` at the top of every file.
+FrozenStringLiteralComment:
+  Enabled: false
+
+# Allow ASCII comments (e.g "…").
+Style/AsciiComments:
+  Enabled: false
+
+# Do not comment the class we create, since the name should be self explanatory.
+Documentation:
+  Enabled: false
+
+# Do not verify the length of the blocks in specs.
+Metrics/BlockLength:
+  Exclude:
+    - spec/**/*
+
+# Allow indenting multiline chained operations.
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+# Prefer `== 0`, `< 0`, `> 0` to `zero?`, `negative?` or `positive?`,
+# since they don't exist before Ruby 2.3 or Rails 5 and can be ambiguous.
+Style/NumericPredicate:
+  EnforcedStyle: comparison
