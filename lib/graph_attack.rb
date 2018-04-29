@@ -1,5 +1,7 @@
-require 'graph_attack/version'
+require 'graphql'
+require 'ratelimit'
+require 'graphql/tracing'
 
-module GraphAttack
-  # Your code goes here...
-end
+require 'graph_attack/version'
+require 'graph_attack/rate_limiter'
+require 'graph_attack/metadata'
