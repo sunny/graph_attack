@@ -34,6 +34,9 @@ Gem::Specification.new do |spec|
   # Testing framework.
   spec.add_development_dependency 'rspec', '~> 3.0'
 
+  # CircleCI dependency to store spec results.
+  spec.add_development_dependency 'rspec_junit_formatter', '~> 0.3'
+
   # Ruby code linter.
   spec.add_development_dependency 'rubocop', '~> 0.55'
 end
