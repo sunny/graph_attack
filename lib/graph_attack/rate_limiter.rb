@@ -2,21 +2,8 @@ module GraphAttack
   # Query analyser you can add to your GraphQL schema to limit calls by IP.
   #
   #     ApplicationSchema = GraphQL::Schema.define do
-  #       query QueryType
   #       query_analyzer GraphAttack::RateLimiter.new
   #     end
-  #
-  # Then, on your fields, you can use the `rate_limit` to add the required meta
-  # attributes to have limits:
-  #
-  #     QueryType = GraphQL::ObjectType.define do
-  #       name 'Query'
-  #       description 'The query root'
-  #
-  #       field :someFieldYouWantToThrottle do
-  #         rate_limit threshold: 15, interval: 60
-  #         # …
-  #       end
   #
   class RateLimiter
     class Error < StandardError; end
