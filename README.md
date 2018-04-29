@@ -59,7 +59,9 @@ class GraphqlController < ApplicationController
     result = ApplicationSchema.execute(
       params[:query],
       variables: params[:variables],
-      context: { ip: request.ip },
+      context: {
+        ip: request.ip,
+      },
     )
     render json: result
   end
@@ -110,5 +112,5 @@ file for details.
 
 ## Acknowledgments
 
-- Hat tip to [Rack::Attack](https://github.com/kickstarter/rack-attack) for the
-  inspiration and the name.
+Hat tip to [Rack::Attack](https://github.com/kickstarter/rack-attack) for the
+the name.
