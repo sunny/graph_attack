@@ -1,32 +1,22 @@
-
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "graph_attack/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "graph_attack"
-  spec.version       = GraphAttack::VERSION
-  spec.authors       = ["Sunny Ripert"]
-  spec.email         = ["sunny@sunfox.org"]
+  spec.name = "graph_attack"
+  spec.version = GraphAttack::VERSION
+  spec.authors = ["Fanny Cheung", "Sunny Ripert"]
+  spec.email = ["fanny@ynote.hk", "sunny@sunfox.org"]
 
-  spec.summary       = %q{TODO: Write a short summary, because RubyGems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary = "GraphQL analyser for blocking & throttling"
+  spec.description = "GraphQL analyser for blocking & throttling"
+  spec.homepage = "https://github.com/sunny/graph_attack"
 
-  # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
-  # to allow pushing to a single host or delete this section to allow pushing to any host.
-  if spec.respond_to?(:metadata)
-    spec.metadata["allowed_push_host"] = "TODO: Set to 'http://mygemserver.com'"
-  else
-    raise "RubyGems 2.0 or newer is required to protect against " \
-      "public gem pushes."
-  end
-
-  spec.files         = `git ls-files -z`.split("\x0").reject do |f|
+  spec.files = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
   end
-  spec.bindir        = "exe"
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
+  spec.bindir = "exe"
+  spec.executables = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
   spec.add_development_dependency "bundler", "~> 1.16"
