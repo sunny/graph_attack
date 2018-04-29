@@ -19,6 +19,9 @@ module GraphAttack
   #       end
   #
   class RateLimiter
+    class Error < StandardError; end
+    class RateLimited < GraphQL::AnalysisError; end
+
     def initial_value(query)
       {
         ip: query.context[:ip],
@@ -45,6 +48,8 @@ module GraphAttack
     private
 
     def increment_rate_limit(ip, key)
+      raise Error, 'Missing :ip value on the GraphQL context' unless ip
+
       rate_limit(ip).add(key)
     end
 
@@ -67,9 +72,7 @@ module GraphAttack
       return unless rate_limited_queries.any?
 
       queries = rate_limited_queries.join(', ')
-      error_message = "Query rate limit exceeded on #{queries}"
-
-      GraphQL::AnalysisError.new(error_message)
+      RateLimited.new("Query rate limit exceeded on #{queries}")
     end
 
     def calls_exceeded_on_query?(ip, query_limit_data)
@@ -81,7 +84,8 @@ module GraphAttack
     end
 
     def rate_limit(ip)
-      @rate_limit ||= Ratelimit.new(ip)
+      @rate_limit ||= {}
+      @rate_limit[ip] ||= Ratelimit.new(ip)
     end
 
     def rate_limited_node?(visit_type, node)
