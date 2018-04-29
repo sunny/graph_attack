@@ -1,4 +1,4 @@
-require "graph_attack/version"
+require 'graph_attack/version'
 
 module GraphAttack
   # Your code goes here...
