@@ -26,13 +26,16 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'ratelimit', '>= 1.0.3'
 
   # Loads local dependencies.
-  spec.add_development_dependency 'bundler', '~> 1.16'
+  spec.add_development_dependency 'bundler', '~> 1.15'
 
   # Development tasks runner.
   spec.add_development_dependency 'rake', '~> 10.0'
 
   # Testing framework.
   spec.add_development_dependency 'rspec', '~> 3.0'
+
+  # CircleCI dependency to store spec results.
+  spec.add_development_dependency 'rspec_junit_formatter', '~> 0.3'
 
   # Ruby code linter.
   spec.add_development_dependency 'rubocop', '~> 0.55'

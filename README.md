@@ -1,5 +1,7 @@
 # GraphAttack
 
+[![CircleCI](https://circleci.com/gh/sunny/graph_attack.svg?style=svg)](https://circleci.com/gh/sunny/graph_attack)
+
 GraphQL analyser for blocking & throttling.
 
 ## Usage
