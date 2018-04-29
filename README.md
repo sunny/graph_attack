@@ -1,39 +1,114 @@
 # GraphAttack
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/graph_attack`. To experiment with that code, run `bin/console` for an interactive prompt.
+GraphQL analyser for blocking & throttling.
 
-TODO: Delete this and the text above, and describe your gem
+## Usage
+
+This gem adds a method to limit access to your GraphQL fields by IP:
+
+```rb
+QueryType = GraphQL::ObjectType.define do
+  name 'Query'
+
+  field :someExpensiveField do
+    rate_limit threshold: 15, interval: 60
+
+    # …
+  end
+end
+```
+
+This would allow only 15 calls per minute by the same IP.
+
+## Requirements
+
+Requires [GraphQL Ruby](http://graphql-ruby.org/) and a running instance
+of [Redis](https://redis.io/).
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Add these lines to your application's `Gemfile`:
 
 ```ruby
+# GraphQL analyser for blocking & throttling by IP.
 gem 'graph_attack'
 ```
 
 And then execute:
 
-    $ bundle
+```sh
+$ bundle
+```
 
-Or install it yourself as:
+Add the query analyser to your schema:
 
-    $ gem install graph_attack
+```rb
+ApplicationSchema = GraphQL::Schema.define do
+  query_analyzer GraphAttack::RateLimiter.new
 
-## Usage
+  # …
+end
+```
 
-TODO: Write usage instructions here
+Finally, make sure you add the current user's IP address as `ip:` to the
+GraphQL context:
+
+```rb
+class GraphqlController < ApplicationController
+  def create
+    result = ApplicationSchema.execute(
+      params[:query],
+      variables: params[:variables],
+      context: { ip: request.ip },
+    )
+    render json: result
+  end
+end
+```
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+After checking out the repo, run `bin/setup` to install dependencies. Then, run
+`rake` to run the tests and the linter. You can also run `bin/console` for an
+interactive prompt that will allow you to experiment.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+## Versionning
+
+We use [SemVer](http://semver.org/) for versioning. For the versions available,
+see the tags on this repository.
+
+### Releasing
+
+To release a new version, update the version number in `version.rb`, and then
+run `bundle exec rake release`, which will create a git tag for the version,
+push git commits and tags, and push the `.gem` file to
+[rubygems.org](https://rubygems.org).
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/graph_attack. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at
+https://github.com/sunny/graph_attack. This project is intended to be a safe,
+welcoming space for collaboration, and contributors are expected to adhere to
+the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
-## Code of Conduct
+### Code of Conduct
 
-Everyone interacting in the GraphAttack project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/graph_attack/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the GraphAttack project’s codebases, issue trackers,
+chat rooms and mailing lists is expected to follow the
+[code of conduct](https://github.com/sunny/graph_attack/blob/master/CODE_OF_CONDUCT.md).
+
+## License
+
+This project is licensed under the MIT License - see the
+[LICENSE.md](https://gist.github.com/PurpleBooth/LICENSE.md)
+file for details.
+
+## Authors
+
+- **Fanny Cheung** - [KissKissBankBank](github.com/KissKissBankBank)
+- **Sunny Ripert** - [KissKissBankBank](github.com/KissKissBankBank)
+
+## Acknowledgments
+
+- Hat tip to [Rack::Attack](https://github.com/kickstarter/rack-attack) for the
+  inspiration and the name.
