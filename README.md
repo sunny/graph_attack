@@ -31,7 +31,7 @@ Add these lines to your application's `Gemfile`:
 
 ```ruby
 # GraphQL analyser for blocking & throttling by IP.
-gem 'graph_attack'
+gem 'graph_attack', github: 'https://github.com/sunny/graph_attack'
 ```
 
 And then execute:
@@ -77,7 +77,7 @@ interactive prompt that will allow you to experiment.
 We use [SemVer](http://semver.org/) for versioning. For the versions available,
 see the tags on this repository.
 
-### Releasing
+## Releasing
 
 To release a new version, update the version number in `version.rb`, and then
 run `bundle exec rake release`, which will create a git tag for the version,
@@ -91,7 +91,7 @@ https://github.com/sunny/graph_attack. This project is intended to be a safe,
 welcoming space for collaboration, and contributors are expected to adhere to
 the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
-### Code of Conduct
+## Code of Conduct
 
 Everyone interacting in the GraphAttack project’s codebases, issue trackers,
 chat rooms and mailing lists is expected to follow the
@@ -100,13 +100,13 @@ chat rooms and mailing lists is expected to follow the
 ## License
 
 This project is licensed under the MIT License - see the
-[LICENSE.md](https://gist.github.com/PurpleBooth/LICENSE.md)
+[LICENSE.md](https://github.com/sunny/graph_attack/blob/master/LICENSE.md)
 file for details.
 
 ## Authors
 
-- **Fanny Cheung** - [KissKissBankBank](github.com/KissKissBankBank)
-- **Sunny Ripert** - [KissKissBankBank](github.com/KissKissBankBank)
+- **Fanny Cheung** - [KissKissBankBank](https://github.com/KissKissBankBank)
+- **Sunny Ripert** - [KissKissBankBank](https://github.com/KissKissBankBank)
 
 ## Acknowledgments
 
