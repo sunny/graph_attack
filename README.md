@@ -33,7 +33,7 @@ Add these lines to your application's `Gemfile`:
 
 ```ruby
 # GraphQL analyser for blocking & throttling by IP.
-gem 'graph_attack', github: 'https://github.com/sunny/graph_attack'
+gem 'graph_attack'
 ```
 
 And then execute:
