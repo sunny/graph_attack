@@ -35,10 +35,10 @@ module GraphAttack
 
     private
 
-    def increment_rate_limit(ip, key, redis)
+    def increment_rate_limit(ip, key, redis_client)
       raise Error, 'Missing :ip value on the GraphQL context' unless ip
 
-      rate_limit(ip, redis).add(key)
+      rate_limit(ip, redis_client).add(key)
     end
 
     def rate_limit_data(node)
@@ -52,7 +52,7 @@ module GraphAttack
 
     def handle_exceeded_calls_on_queries(memo)
       rate_limited_queries = memo[:query_rate_limits].map do |limit_data|
-        next unless calls_exceeded_on_query?(memo[:ip], limit_data)
+        next unless calls_exceeded_on_query?(memo[:ip], limit_data, memo[:redis_client])
 
         limit_data[:query_name]
       end.compact
@@ -63,17 +63,17 @@ module GraphAttack
       RateLimited.new("Query rate limit exceeded on #{queries}")
     end
 
-    def calls_exceeded_on_query?(ip, query_limit_data)
-      rate_limit(ip).exceeded?(
+    def calls_exceeded_on_query?(ip, query_limit_data, redis_client)
+      rate_limit(ip, redis_client).exceeded?(
         query_limit_data[:key],
         threshold: query_limit_data[:threshold],
         interval: query_limit_data[:interval],
       )
     end
 
-    def rate_limit(ip, redis)
+    def rate_limit(ip, redis_client = Redis.new)
       @rate_limit ||= {}
-      @rate_limit[ip] ||= Ratelimit.new(ip, redis: redis || Redis.new)
+      @rate_limit[ip] ||= Ratelimit.new(ip, redis: redis_client)
     end
 
     def rate_limited_node?(visit_type, node)
