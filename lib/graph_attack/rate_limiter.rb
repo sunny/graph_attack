@@ -13,6 +13,7 @@ module GraphAttack
       {
         ip: query.context[:ip],
         query_rate_limits: [],
+        redis_client: query.context[:redis_client]
       }
     end
 
@@ -22,7 +23,7 @@ module GraphAttack
 
         memo[:query_rate_limits].push(data)
 
-        increment_rate_limit(memo[:ip], data[:key])
+        increment_rate_limit(memo[:ip], data[:key], memo[:redis_client])
       end
 
       memo
@@ -34,10 +35,10 @@ module GraphAttack
 
     private
 
-    def increment_rate_limit(ip, key)
+    def increment_rate_limit(ip, key, redis)
       raise Error, 'Missing :ip value on the GraphQL context' unless ip
 
-      rate_limit(ip).add(key)
+      rate_limit(ip, redis).add(key)
     end
 
     def rate_limit_data(node)
@@ -70,9 +71,9 @@ module GraphAttack
       )
     end
 
-    def rate_limit(ip)
+    def rate_limit(ip, redis)
       @rate_limit ||= {}
-      @rate_limit[ip] ||= Ratelimit.new(ip, redis: redis_client)
+      @rate_limit[ip] ||= Ratelimit.new(ip, redis: redis || Redis.new)
     end
 
     def rate_limited_node?(visit_type, node)
@@ -84,14 +85,6 @@ module GraphAttack
     def query_field_node?(node)
       node.owner_type.name == 'Query' &&
         node.ast_node.is_a?(GraphQL::Language::Nodes::Field)
-    end
-
-    def redis_client
-      redis_url = Rails.application.secrets.redis_url.presence ||
-        ENV.fetch('REDIS_URL', "redis://#{ENV.fetch('REDIS_HOST', 'localhost')}:#{ENV.fetch('REDIS_PORT', '6379')}")
-      Redis.new({ url: redis_url })
-    rescue NameError
-      Redis.new
     end
   end
 end
