@@ -72,7 +72,7 @@ module GraphAttack
 
     def rate_limit(ip)
       @rate_limit ||= {}
-      @rate_limit[ip] ||= Ratelimit.new(ip)
+      @rate_limit[ip] ||= Ratelimit.new(ip, redis: redis_client)
     end
 
     def rate_limited_node?(visit_type, node)
@@ -84,6 +84,14 @@ module GraphAttack
     def query_field_node?(node)
       node.owner_type.name == 'Query' &&
         node.ast_node.is_a?(GraphQL::Language::Nodes::Field)
+    end
+
+    def redis_client
+      redis_url = Rails.application.secrets.redis_url.presence ||
+        ENV.fetch('REDIS_URL', "redis://#{ENV.fetch('REDIS_HOST', 'localhost')}:#{ENV.fetch('REDIS_PORT', '6379')}")
+      Redis.new({ url: redis_url })
+    rescue NameError
+      Redis.new
     end
   end
 end
