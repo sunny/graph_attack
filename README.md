@@ -70,6 +70,16 @@ class GraphqlController < ApplicationController
 end
 ```
 
+## Configuration
+
+Use a custom Redis client instead of the default:
+
+```rb
+query_analyzer GraphAttack::RateLimiter.new(
+  redis_client: Redis.new(url: "…")
+)
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run

@@ -9,6 +9,10 @@ module GraphAttack
     class Error < StandardError; end
     class RateLimited < GraphQL::AnalysisError; end
 
+    def initialize(redis_client: Redis.new)
+      @redis_client = redis_client
+    end
+
     def initial_value(query)
       {
         ip: query.context[:ip],
@@ -33,6 +37,8 @@ module GraphAttack
     end
 
     private
+
+    attr_reader :redis_client
 
     def increment_rate_limit(ip, key)
       raise Error, 'Missing :ip value on the GraphQL context' unless ip
@@ -72,7 +78,7 @@ module GraphAttack
 
     def rate_limit(ip)
       @rate_limit ||= {}
-      @rate_limit[ip] ||= Ratelimit.new(ip)
+      @rate_limit[ip] ||= Ratelimit.new(ip, redis: redis_client)
     end
 
     def rate_limited_node?(visit_type, node)
