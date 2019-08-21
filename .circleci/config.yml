@@ -20,6 +20,7 @@ jobs:
           - v2-dependencies-{{ checksum "graph_attack.gemspec" }}
           - v2-dependencies-
 
+      - run: gem install bundler:2.0.2
       - run: bundle install --jobs=4 --retry=3 --path vendor/bundle
 
       - save_cache:
