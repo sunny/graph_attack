@@ -6,7 +6,7 @@ version: 2
 jobs:
   build:
     docker:
-       - image: circleci/ruby:2.4.1-node-browsers
+       - image: circleci/ruby:2.5.5
        - image: redis
 
     working_directory: ~/repo
@@ -17,17 +17,15 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "graph_attack.gemspec" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
+          - v2-dependencies-{{ checksum "graph_attack.gemspec" }}
+          - v2-dependencies-
 
-      - run: gem install bundler:2.0
       - run: bundle install --jobs=4 --retry=3 --path vendor/bundle
 
       - save_cache:
           paths:
             - ./vendor/bundle
-          key: v1-dependencies-{{ checksum "graph_attack.gemspec" }}
+          key: v2-dependencies-{{ checksum "graph_attack.gemspec" }}
 
       # Run tests!
       - run:
