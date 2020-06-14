@@ -109,12 +109,12 @@ the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 Everyone interacting in the GraphAttack project’s codebases, issue trackers,
 chat rooms and mailing lists is expected to follow the
-[code of conduct](https://github.com/sunny/graph_attack/blob/master/CODE_OF_CONDUCT.md).
+[code of conduct](https://github.com/sunny/graph_attack/blob/main/CODE_OF_CONDUCT.md).
 
 ## License
 
 This project is licensed under the MIT License - see the
-[LICENSE.md](https://github.com/sunny/graph_attack/blob/master/LICENSE.md)
+[LICENSE.md](https://github.com/sunny/graph_attack/blob/main/LICENSE.md)
 file for details.
 
 ## Authors
