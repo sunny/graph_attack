@@ -1,5 +1,5 @@
 AllCops:
-  TargetRubyVersion: 2.3
+  TargetRubyVersion: 2.7
   DisplayCopNames: true
 
 # Do not sort gems in Gemfile, since we are grouping them by functionality.
@@ -43,15 +43,11 @@ Metrics/BlockLength:
   Exclude:
     - spec/**/*
 
-# Allow indenting multiline chained operations.
-Layout/MultilineMethodCallIndentation:
-  EnforcedStyle: indented
-
 # Prefer `== 0`, `< 0`, `> 0` to `zero?`, `negative?` or `positive?`,
 # since they don't exist before Ruby 2.3 or Rails 5 and can be ambiguous.
 Style/NumericPredicate:
   EnforcedStyle: comparison
 
 # Allow shorter argument names like `ip`.
-Naming/UncommunicativeMethodParamName:
+Naming/MethodParameterName:
   MinNameLength: 2
