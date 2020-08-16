@@ -1,3 +1,5 @@
+require: rubocop-rspec
+
 AllCops:
   TargetRubyVersion: 2.7
   DisplayCopNames: true
@@ -43,6 +45,18 @@ Metrics/BlockLength:
 # since they don't exist before Ruby 2.3 or Rails 5 and can be ambiguous.
 Style/NumericPredicate:
   EnforcedStyle: comparison
+
+# Allow more expectations per example (default 1).
+RSpec/MultipleExpectations:
+  Max: 5
+
+# Allow more group nesting (default 3)
+RSpec/NestedGroups:
+  Max: 4
+
+# Allow longer examples (default 5)
+RSpec/ExampleLength:
+  Max: 8
 
 Layout/EmptyLinesAroundAttributeAccessor:
   Enabled: true

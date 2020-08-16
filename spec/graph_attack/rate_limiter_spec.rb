@@ -49,7 +49,7 @@ RSpec.describe GraphAttack::RateLimiter do
     redis.scan_each(match: 'ratelimit:*') { |key| redis.del(key) }
   end
 
-  describe 'on fields without rate limiting' do
+  describe 'fields without rate limiting' do
     it 'returns data' do
       result = schema.execute('{ inexpensiveField }', context: context)
 
@@ -64,7 +64,7 @@ RSpec.describe GraphAttack::RateLimiter do
     end
   end
 
-  describe 'on fields with rate limiting' do
+  describe 'fields with rate limiting' do
     it 'inserts rate limits in redis' do
       schema.execute('{ expensiveField }', context: context)
 
@@ -81,7 +81,7 @@ RSpec.describe GraphAttack::RateLimiter do
       end
     end
 
-    context 'after rate limit is exceeded' do
+    context 'when rate limit is exceeded' do
       before do
         4.times do
           schema.execute('{ expensiveField }', context: context)
@@ -96,7 +96,7 @@ RSpec.describe GraphAttack::RateLimiter do
         expect(result).not_to have_key('data')
       end
 
-      context 'on a different IP' do
+      context 'when on a different IP' do
         let(:context2) { { ip: '203.0.113.43' } }
 
         it 'does not return an error' do
@@ -109,8 +109,8 @@ RSpec.describe GraphAttack::RateLimiter do
     end
   end
 
-  describe 'on several fields with rate limiting' do
-    context 'after one rate limit is exceeded' do
+  describe 'several fields with rate limiting' do
+    context 'when one rate limit is exceeded' do
       before do
         5.times do
           schema.execute(
@@ -132,7 +132,7 @@ RSpec.describe GraphAttack::RateLimiter do
       end
     end
 
-    context 'after both rate limits are exceeded' do
+    context 'when both rate limits are exceeded' do
       before do
         10.times do
           schema.execute(
@@ -160,7 +160,7 @@ RSpec.describe GraphAttack::RateLimiter do
     let(:schema) { Dummy::SchemaWithCustomRedisClient }
     let(:redis) { Dummy::CUSTOM_REDIS_CLIENT }
 
-    describe 'on fields with rate limiting' do
+    describe 'fields with rate limiting' do
       it 'inserts rate limits in the custom redis client' do
         schema.execute('{ expensiveField }', context: context)
 
