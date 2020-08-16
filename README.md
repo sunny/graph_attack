@@ -9,6 +9,19 @@ GraphQL analyser for blocking & throttling.
 This gem adds a method to limit access to your GraphQL fields by IP:
 
 ```rb
+class QueryType < GraphQL::Schema::Object
+  field :some_expensive_field, String, null: false do
+    extension(GraphAttack::RateLimit, threshold: 15, interval: 60)
+  end
+
+  # …
+end
+```
+
+<details>
+<summary>If using GraphQL::Ruby's legacy schema definition</summary>
+
+```rb
 QueryType = GraphQL::ObjectType.define do
   name 'Query'
 
@@ -19,6 +32,8 @@ QueryType = GraphQL::ObjectType.define do
   end
 end
 ```
+
+</details>
 
 This would allow only 15 calls per minute by the same IP.
 
@@ -42,6 +57,9 @@ And then execute:
 $ bundle
 ```
 
+<details>
+<summary>If using GraphQL::Ruby's legacy schema definition</summary>
+
 Add the query analyser to your schema:
 
 ```rb
@@ -52,8 +70,10 @@ ApplicationSchema = GraphQL::Schema.define do
 end
 ```
 
+</details>
+
 Finally, make sure you add the current user's IP address as `ip:` to the
-GraphQL context:
+GraphQL context. E.g.:
 
 ```rb
 class GraphqlController < ApplicationController
@@ -75,10 +95,26 @@ end
 Use a custom Redis client instead of the default:
 
 ```rb
+  field :some_expensive_field, String, null: false do
+    extension(
+      GraphAttack::RateLimit,
+      threshold: 15,
+      interval: 60,
+      redis_client: Redis.new(url: "…"),
+    )
+  end
+```
+
+<details>
+<summary>If using GraphQL::Ruby's legacy schema definition</summary>
+
+```rb
 query_analyzer GraphAttack::RateLimiter.new(
   redis_client: Redis.new(url: "…")
 )
 ```
+
+</details>
 
 ## Development
 

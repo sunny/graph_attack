@@ -1,46 +1,52 @@
 # frozen_string_literal: true
 
-module DummyLegacy
-  QueryType = GraphQL::ObjectType.define do
-    name 'Query'
-
-    field :inexpensiveField do
-      type types.String
-      resolve ->(_obj, _args, _ctx) { 'result' }
-    end
-
-    field :expensiveField do
-      rate_limit threshold: 5, interval: 15
-
-      type types.String
-      resolve ->(_obj, _args, _ctx) { 'result' }
-    end
-
-    field :expensiveField2 do
-      rate_limit threshold: 10, interval: 15
-
-      type types.String
-      resolve ->(_obj, _args, _ctx) { 'result' }
-    end
-  end
-
-  Schema = GraphQL::Schema.define do
-    query QueryType
-    query_analyzer GraphAttack::RateLimiter.new
-  end
-
+module Dummy
   CUSTOM_REDIS_CLIENT = Redis.new
 
-  SchemaWithCustomRedisClient = GraphQL::Schema.define do
+  class QueryType < GraphQL::Schema::Object
+    field :inexpensive_field, String, null: false
+
+    field :expensive_field, String, null: false do
+      extension(GraphAttack::RateLimit, threshold: 5, interval: 15)
+    end
+
+    field :expensive_field_2, String, null: false do
+      extension(GraphAttack::RateLimit, threshold: 10, interval: 15)
+    end
+
+    field :field_with_custom_redis_client, String, null: false do
+      extension(
+        GraphAttack::RateLimit,
+        threshold: 10,
+        interval: 15,
+        redis_client: CUSTOM_REDIS_CLIENT,
+      )
+    end
+
+    def inexpensive_field
+      'result'
+    end
+
+    def expensive_field
+      'result'
+    end
+
+    def expensive_field_2
+      'result'
+    end
+
+    def field_with_custom_redis_client
+      'result'
+    end
+  end
+
+  class Schema < GraphQL::Schema
     query QueryType
-    query_analyzer GraphAttack::RateLimiter.new(
-      redis_client: CUSTOM_REDIS_CLIENT,
-    )
   end
 end
 
-RSpec.describe GraphAttack::RateLimiter do
-  let(:schema) { DummyLegacy::Schema }
+RSpec.describe GraphAttack::RateLimit do
+  let(:schema) { Dummy::Schema }
   let(:redis) { Redis.current }
   let(:context) { { ip: '99.99.99.99' } }
 
@@ -91,9 +97,13 @@ RSpec.describe GraphAttack::RateLimiter do
       it 'returns an error' do
         result = schema.execute('{ expensiveField }', context: context)
 
-        expected_message = 'Query rate limit exceeded on expensiveField'
-        expect(result['errors']).to eq([{ 'message' => expected_message }])
-        expect(result).not_to have_key('data')
+        expected_error = {
+          'locations' => [{ 'column' => 3, 'line' => 1 }],
+          'message' => 'Query rate limit exceeded',
+          'path' => ['expensiveField'],
+        }
+        expect(result['errors']).to eq([expected_error])
+        expect(result['data']).to be_nil
       end
 
       context 'when on a different IP' do
@@ -111,6 +121,14 @@ RSpec.describe GraphAttack::RateLimiter do
 
   describe 'several fields with rate limiting' do
     context 'when one rate limit is exceeded' do
+      let(:expected_error) do
+        {
+          'locations' => [{ 'column' => 3, 'line' => 1 }],
+          'message' => 'Query rate limit exceeded',
+          'path' => ['expensiveField'],
+        }
+      end
+
       before do
         5.times do
           schema.execute(
@@ -126,39 +144,38 @@ RSpec.describe GraphAttack::RateLimiter do
           context: context,
         )
 
-        expected_message = 'Query rate limit exceeded on expensiveField'
-        expect(result['errors']).to eq([{ 'message' => expected_message }])
-        expect(result).not_to have_key('data')
+        expect(result['errors']).to eq([expected_error])
+        expect(result['data']).to be_nil
       end
     end
 
     context 'when both rate limits are exceeded' do
+      let(:query) { '{ expensiveField expensiveField2 }' }
+      let(:expected_error) do
+        {
+          'locations' => [{ 'column' => 3, 'line' => 1 }],
+          'message' => 'Query rate limit exceeded',
+          'path' => ['expensiveField'],
+        }
+      end
+
       before do
         10.times do
-          schema.execute(
-            '{ expensiveField expensiveField2 }',
-            context: context,
-          )
+          schema.execute(query, context: context)
         end
       end
 
-      it 'returns an error message with both fields' do
-        result = schema.execute(
-          '{ expensiveField expensiveField2 }',
-          context: context,
-        )
+      it 'returns an error on the first exceeded limit' do
+        result = schema.execute(query, context: context)
 
-        expected_message =
-          'Query rate limit exceeded on expensiveField, expensiveField2'
-        expect(result['errors']).to eq([{ 'message' => expected_message }])
-        expect(result).not_to have_key('data')
+        expect(result['errors']).to eq([expected_error])
+        expect(result['data']).to be_nil
       end
     end
   end
 
-  context 'with a custom redis client' do
-    let(:schema) { DummyLegacy::SchemaWithCustomRedisClient }
-    let(:redis) { DummyLegacy::CUSTOM_REDIS_CLIENT }
+  context 'with a custom redis client field' do
+    let(:redis) { Dummy::CUSTOM_REDIS_CLIENT }
 
     describe 'fields with rate limiting' do
       it 'inserts rate limits in the custom redis client' do
