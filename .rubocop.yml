@@ -52,7 +52,7 @@ RSpec/MultipleExpectations:
 
 # Allow more group nesting (default 3)
 RSpec/NestedGroups:
-  Max: 4
+  Max: 5
 
 # Allow longer examples (default 5)
 RSpec/ExampleLength:
