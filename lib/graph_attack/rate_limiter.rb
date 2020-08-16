@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module GraphAttack
   # Query analyser you can add to your GraphQL schema to limit calls by IP.
   #

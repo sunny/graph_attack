@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Dummy
   QueryType = GraphQL::ObjectType.define do
     name 'Query'

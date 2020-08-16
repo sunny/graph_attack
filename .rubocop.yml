@@ -26,10 +26,6 @@ Layout/MultilineMethodCallIndentation:
 Metrics/MethodLength:
   Max: 15
 
-# Do not require `# frozen_string_literal: true` at the top of every file.
-Style/FrozenStringLiteralComment:
-  Enabled: false
-
 # Allow ASCII comments (e.g "…").
 Style/AsciiComments:
   Enabled: false
