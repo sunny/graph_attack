@@ -44,10 +44,6 @@ Metrics/BlockLength:
 Style/NumericPredicate:
   EnforcedStyle: comparison
 
-# Allow shorter argument names like `ip`.
-Naming/MethodParameterName:
-  MinNameLength: 2
-
 Layout/EmptyLinesAroundAttributeAccessor:
   Enabled: true
 
