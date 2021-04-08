@@ -9,6 +9,7 @@ module GraphAttack
   #
   class RateLimiter
     class Error < StandardError; end
+
     class RateLimited < GraphQL::AnalysisError; end
 
     def initialize(redis_client: Redis.new)
