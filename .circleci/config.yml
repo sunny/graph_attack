@@ -6,7 +6,7 @@ version: 2
 jobs:
   build:
     docker:
-       - image: circleci/ruby:2.5.5
+       - image: circleci/ruby:2.7.1
        - image: redis
 
     working_directory: ~/repo
