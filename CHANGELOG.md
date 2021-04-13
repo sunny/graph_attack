@@ -1,6 +1,10 @@
 unreleased
 ----------
 
+Feature:
+- New GraphAttack::RateLimit extension to be used in GraphQL::Ruby's class-based
+  syntax.
+
 v1.1.0
 ------
 
