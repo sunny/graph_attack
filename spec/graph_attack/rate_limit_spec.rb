@@ -10,7 +10,7 @@ module Dummy
       extension(GraphAttack::RateLimit, threshold: 5, interval: 15)
     end
 
-    field :expensive_field_2, String, null: false do
+    field :expensive_field2, String, null: false do
       extension(GraphAttack::RateLimit, threshold: 10, interval: 15)
     end
 
@@ -31,7 +31,7 @@ module Dummy
       'result'
     end
 
-    def expensive_field_2
+    def expensive_field2
       'result'
     end
 
