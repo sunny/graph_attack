@@ -14,13 +14,16 @@ Gem::Specification.new do |spec|
   spec.description = 'GraphQL analyser for blocking & throttling'
   spec.homepage = 'https://github.com/sunny/graph_attack'
 
+  spec.metadata['rubygems_mfa_required'] = 'true'
+
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
   end
   spec.bindir = 'exe'
   spec.executables = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
-  spec.required_ruby_version = ['>= 2.5.7', '< 2.8']
+
+  spec.required_ruby_version = ['>= 2.5.7', '< 3.2']
 
   # This gem is an analyser for the GraphQL ruby gem.
   spec.add_dependency 'graphql', '>= 1.7.9'

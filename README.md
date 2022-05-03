@@ -6,36 +6,19 @@ GraphQL analyser for blocking & throttling.
 
 ## Usage
 
-This gem adds a method to limit access to your GraphQL fields by IP:
+This gem adds a method to limit access to your GraphQL fields by IP address:
 
 ```rb
 class QueryType < GraphQL::Schema::Object
   field :some_expensive_field, String, null: false do
-    extension(GraphAttack::RateLimit, threshold: 15, interval: 60)
+    extension GraphAttack::RateLimit, threshold: 15, interval: 60
   end
 
   # …
 end
 ```
 
-<details>
-<summary>If using GraphQL::Ruby's legacy schema definition</summary>
-
-```rb
-QueryType = GraphQL::ObjectType.define do
-  name 'Query'
-
-  field :someExpensiveField do
-    rate_limit threshold: 15, interval: 60
-
-    # …
-  end
-end
-```
-
-</details>
-
-This would allow only 15 calls per minute by the same IP.
+This would allow only 15 calls per minute by the same IP address.
 
 ## Requirements
 
@@ -44,11 +27,11 @@ of [Redis](https://redis.io/).
 
 ## Installation
 
-Add these lines to your application's `Gemfile`:
+Add these lines to your application’s `Gemfile`:
 
 ```ruby
 # GraphQL analyser for blocking & throttling by IP.
-gem 'graph_attack'
+gem "graph_attack"
 ```
 
 And then execute:
@@ -57,22 +40,7 @@ And then execute:
 $ bundle
 ```
 
-<details>
-<summary>If using GraphQL::Ruby's legacy schema definition</summary>
-
-Add the query analyser to your schema:
-
-```rb
-ApplicationSchema = GraphQL::Schema.define do
-  query_analyzer GraphAttack::RateLimiter.new
-
-  # …
-end
-```
-
-</details>
-
-Finally, make sure you add the current user's IP address as `ip:` to the
+Finally, make sure you add the current user’s IP address as `ip:` to the
 GraphQL context. E.g.:
 
 ```rb
@@ -96,25 +64,12 @@ Use a custom Redis client instead of the default:
 
 ```rb
   field :some_expensive_field, String, null: false do
-    extension(
-      GraphAttack::RateLimit,
-      threshold: 15,
-      interval: 60,
-      redis_client: Redis.new(url: "…"),
-    )
+    extension GraphAttack::RateLimit,
+              threshold: 15,
+              interval: 60,
+              redis_client: Redis.new(url: "…")
   end
 ```
-
-<details>
-<summary>If using GraphQL::Ruby's legacy schema definition</summary>
-
-```rb
-query_analyzer GraphAttack::RateLimiter.new(
-  redis_client: Redis.new(url: "…")
-)
-```
-
-</details>
 
 ## Development
 
