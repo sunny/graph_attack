@@ -7,20 +7,18 @@ module Dummy
     field :inexpensive_field, String, null: false
 
     field :expensive_field, String, null: false do
-      extension(GraphAttack::RateLimit, threshold: 5, interval: 15)
+      extension GraphAttack::RateLimit, threshold: 5, interval: 15
     end
 
     field :expensive_field2, String, null: false do
-      extension(GraphAttack::RateLimit, threshold: 10, interval: 15)
+      extension GraphAttack::RateLimit, threshold: 10, interval: 15
     end
 
     field :field_with_custom_redis_client, String, null: false do
-      extension(
-        GraphAttack::RateLimit,
-        threshold: 10,
-        interval: 15,
-        redis_client: CUSTOM_REDIS_CLIENT,
-      )
+      extension GraphAttack::RateLimit,
+                threshold: 10,
+                interval: 15,
+                redis_client: CUSTOM_REDIS_CLIENT
     end
 
     def inexpensive_field
@@ -151,12 +149,19 @@ RSpec.describe GraphAttack::RateLimit do
 
     context 'when both rate limits are exceeded' do
       let(:query) { '{ expensiveField expensiveField2 }' }
-      let(:expected_error) do
-        {
-          'locations' => [{ 'column' => 3, 'line' => 1 }],
-          'message' => 'Query rate limit exceeded',
-          'path' => ['expensiveField'],
-        }
+      let(:expected_errors) do
+        [
+          {
+            'locations' => [{ 'column' => 3, 'line' => 1 }],
+            'message' => 'Query rate limit exceeded',
+            'path' => ['expensiveField'],
+          },
+          {
+            'locations' => [{ 'column' => 18, 'line' => 1 }],
+            'message' => 'Query rate limit exceeded',
+            'path' => ['expensiveField2'],
+          },
+        ]
       end
 
       before do
@@ -165,10 +170,10 @@ RSpec.describe GraphAttack::RateLimit do
         end
       end
 
-      it 'returns an error on the first exceeded limit' do
+      it 'returns an error on both' do
         result = schema.execute(query, context: context)
 
-        expect(result['errors']).to eq([expected_error])
+        expect(result['errors']).to eq(expected_errors)
         expect(result['data']).to be_nil
       end
     end
