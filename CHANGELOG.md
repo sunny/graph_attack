@@ -5,6 +5,9 @@ Breaking changes:
 - Drop support for GraphQL legacy schema, please use GraphQL::Ruby's class-based
   syntax exclusively.
 
+Feature:
+- Support Ruby 3.
+
 v1.2.0
 ------
 
