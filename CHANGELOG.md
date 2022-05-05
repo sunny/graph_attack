@@ -1,6 +1,9 @@
 unreleased
 ----------
 
+v2.0.0
+------
+
 Breaking changes:
 - Drop support for GraphQL legacy schema, please use GraphQL::Ruby's class-based
   syntax exclusively.
