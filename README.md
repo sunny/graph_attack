@@ -110,8 +110,8 @@ file for details.
 
 ## Authors
 
-- **Fanny Cheung** - [KissKissBankBank](https://github.com/KissKissBankBank)
-- **Sunny Ripert** - [KissKissBankBank](https://github.com/KissKissBankBank)
+- [Fanny Cheung](https://github.com/Ynote) — [ynote.hk](https://ynote.hk)
+- [Sunny Ripert](https://github.com/sunny) — [sunfox.org](https://sunfox.org)
 
 ## Acknowledgments
 
