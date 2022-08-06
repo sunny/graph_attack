@@ -21,6 +21,10 @@ module Dummy
                 redis_client: CUSTOM_REDIS_CLIENT
     end
 
+    field :field_with_on_option, String, null: false do
+      extension GraphAttack::RateLimit, threshold: 10, interval: 15, on: :client_id
+    end
+
     def inexpensive_field
       'result'
     end
@@ -34,6 +38,10 @@ module Dummy
     end
 
     def field_with_custom_redis_client
+      'result'
+    end
+
+    def field_with_on_option
       'result'
     end
   end
@@ -188,6 +196,57 @@ RSpec.describe GraphAttack::RateLimit do
 
         key = 'ratelimit:99.99.99.99:graphql-query-expensiveField'
         expect(redis.scan_each(match: key).count).to eq(1)
+      end
+    end
+  end
+
+  describe 'fields with the on option' do
+    let(:context) { { client_id: '0cca3dfc-6638-4ef4-baef-925b65121b0c' } }
+
+    it 'inserts rate limits in redis' do
+      schema.execute('{ fieldWithOnOption }', context: context)
+
+      key = 'ratelimit:0cca3dfc-6638-4ef4-baef-925b65121b0c:graphql-query-fieldWithOnOption-client_id'
+      expect(redis.scan_each(match: key).count).to eq(1)
+    end
+
+    it 'returns data until rate limit is exceeded' do
+      9.times do
+        result = schema.execute('{ fieldWithOnOption }', context: context)
+
+        expect(result).not_to have_key('errors')
+        expect(result['data']).to eq('fieldWithOnOption' => 'result')
+      end
+    end
+
+    context 'when rate limit is exceeded' do
+      before do
+        9.times do
+          schema.execute('{ fieldWithOnOption }', context: context)
+        end
+      end
+
+      it 'returns an error' do
+        result = schema.execute('{ fieldWithOnOption }', context: context)
+
+        expected_error = {
+          'locations' => [{ 'column' => 3, 'line' => 1 }],
+          'message' => 'Query rate limit exceeded',
+          'path' => ['fieldWithOnOption'],
+        }
+        expect(result['errors']).to eq([expected_error])
+        expect(result['data']).to be_nil
+      end
+
+      context 'when on a different :on value' do
+        let(:context2) { { client_id: '25be1c42-0cf1-424e-acfe-d8d31939a1c0' } }
+
+        it 'does not return an error' do
+          result = schema.execute('{ fieldWithOnOption }', context: context2)
+
+          expect(result).not_to have_key('errors')
+          expect(result['data']).to eq('fieldWithOnOption' => 'result')
+        end
       end
     end
   end
