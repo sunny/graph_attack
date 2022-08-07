@@ -4,9 +4,14 @@ module GraphAttack
   class RateLimit < GraphQL::Schema::FieldExtension
     def resolve(object:, arguments:, **_rest)
       rate_limited_field = object.context[rate_limited_key]
-      raise GraphAttack::Error, "Missing :#{rate_limited_key} value on the GraphQL context" unless rate_limited_field
+      unless rate_limited_field
+        raise GraphAttack::Error,
+              "Missing :#{rate_limited_key} value on the GraphQL context"
+      end
 
-      return RateLimited.new('Query rate limit exceeded') if calls_exceeded_on_query?(rate_limited_field)
+      if calls_exceeded_on_query?(rate_limited_field)
+        return RateLimited.new('Query rate limit exceeded')
+      end
 
       yield(object, arguments)
     end

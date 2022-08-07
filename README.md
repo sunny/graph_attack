@@ -60,22 +60,34 @@ end
 
 ## Configuration
 
-Use a custom Redis client instead of the default:
+### Custom context key
+
+If you want to throttle using a different value than the IP address, you can
+choose which context key you want to use with the `on` option. E.g.:
 
 ```rb
-  field :some_expensive_field, String, null: false do
-    extension GraphAttack::RateLimit,
-              threshold: 15,
-              interval: 60,
-              redis_client: Redis.new(url: "…")
-  end
+extension GraphAttack::RateLimit,
+          threshold: 15,
+          interval: 60,
+          on: :client_id
+```
+
+### Custom Redis client
+
+Use a custom Redis client instead of the default with the `redis_client` option:
+
+```rb
+extension GraphAttack::RateLimit,
+          threshold: 15,
+          interval: 60,
+          redis_client: Redis.new(url: "…")
 ```
 
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run
-`rake` to run the tests and the linter. You can also run `bin/console` for an
-interactive prompt that will allow you to experiment.
+`bin/rake` to run the tests and the linter. You can also run `bin/console` for
+an interactive prompt that will allow you to experiment.
 
 ## Versionning
 
@@ -84,10 +96,18 @@ see the tags on this repository.
 
 ## Releasing
 
-To release a new version, update the version number in `version.rb`, commit,
-and then run `bin/rake release`, which will create a git tag for the version,
-push git commits and tags, and push the gem to
-[rubygems.org](https://rubygems.org).
+To release a new version, update the version number in `version.rb` and in the
+`CHANGELOG.md`. Update the `README.md` if there are missing segments, make sure
+tests and linting are pristine by calling `bundle && bin/rake`, then create a
+commit for this version, for example with:
+
+```sh
+git add .
+git commit -m v`ruby -rbundler/setup -rgraph_attack/version -e "puts GraphAttack::VERSION"`
+```
+
+You can then run `bin/rake release`, which will assign a git tag, push using
+git, and push the gem to [rubygems.org](https://rubygems.org).
 
 ## Contributing
 

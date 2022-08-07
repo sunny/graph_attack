@@ -22,7 +22,10 @@ module Dummy
     end
 
     field :field_with_on_option, String, null: false do
-      extension GraphAttack::RateLimit, threshold: 10, interval: 15, on: :client_id
+      extension GraphAttack::RateLimit,
+                threshold: 10,
+                interval: 15,
+                on: :client_id
     end
 
     def inexpensive_field
@@ -201,12 +204,12 @@ RSpec.describe GraphAttack::RateLimit do
   end
 
   describe 'fields with the on option' do
-    let(:context) { { client_id: '0cca3dfc-6638-4ef4-baef-925b65121b0c' } }
+    let(:context) { { client_id: '0cca3dfc-6638' } }
 
     it 'inserts rate limits in redis' do
       schema.execute('{ fieldWithOnOption }', context: context)
 
-      key = 'ratelimit:0cca3dfc-6638-4ef4-baef-925b65121b0c:graphql-query-fieldWithOnOption-client_id'
+      key = 'ratelimit:0cca3dfc-6638:graphql-query-fieldWithOnOption-client_id'
       expect(redis.scan_each(match: key).count).to eq(1)
     end
 

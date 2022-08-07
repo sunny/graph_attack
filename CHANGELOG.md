@@ -1,6 +1,12 @@
 unreleased
 ----------
 
+v2.1.0
+------
+
+Feature:
+- Add support to custom rate limited context key with the `on:` option.
+
 v2.0.0
 ------
 
