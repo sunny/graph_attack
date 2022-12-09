@@ -58,6 +58,8 @@ class GraphqlController < ApplicationController
 end
 ```
 
+If that key is `nil`, throttling will be disabled.
+
 ## Configuration
 
 ### Custom context key
