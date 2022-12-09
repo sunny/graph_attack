@@ -1,6 +1,13 @@
 unreleased
 ----------
 
+v2.2.0
+------
+
+Feature:
+- Add context key exist validator
+- Skip call to `calls_exceeded_on_query` when `rate_limited_field` is nil
+
 v2.1.0
 ------
 

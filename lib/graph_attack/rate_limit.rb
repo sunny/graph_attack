@@ -4,12 +4,13 @@ module GraphAttack
   class RateLimit < GraphQL::Schema::FieldExtension
     def resolve(object:, arguments:, **_rest)
       rate_limited_field = object.context[rate_limited_key]
-      unless rate_limited_field
+
+      unless object.context.key?(rate_limited_key)
         raise GraphAttack::Error,
-              "Missing :#{rate_limited_key} value on the GraphQL context"
+              "Missing :#{rate_limited_key} key on the GraphQL context"
       end
 
-      if calls_exceeded_on_query?(rate_limited_field)
+      if rate_limited_field && calls_exceeded_on_query?(rate_limited_field)
         return RateLimited.new('Query rate limit exceeded')
       end
 
@@ -20,17 +21,15 @@ module GraphAttack
 
     def key
       on = "-#{options[:on]}" if options[:on]
+
       "graphql-query-#{field.name}#{on}"
     end
 
     def calls_exceeded_on_query?(rate_limited_field)
       rate_limit = Ratelimit.new(rate_limited_field, redis: redis_client)
       rate_limit.add(key)
-      rate_limit.exceeded?(
-        key,
-        threshold: threshold,
-        interval: interval,
-      )
+
+      rate_limit.exceeded?(key, threshold: threshold, interval: interval)
     end
 
     def threshold
@@ -50,7 +49,7 @@ module GraphAttack
     end
 
     def redis_client
-      options[:redis_client] || Redis.current
+      options[:redis_client] || Redis.new
     end
 
     def rate_limited_key
