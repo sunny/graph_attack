@@ -29,7 +29,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'graphql', '>= 1.7.9'
 
   # A Redis-backed rate limiter.
-  spec.add_dependency 'ratelimit', '>= 1.0.3'
+  spec.add_dependency 'ratelimit', '>= 1.0.4'
 
   # Loads local dependencies.
   spec.add_development_dependency 'bundler', '~> 2.0'
