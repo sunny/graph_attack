@@ -69,7 +69,7 @@ RSpec/NestedGroups:
 
 # Allow longer examples (default 5)
 RSpec/ExampleLength:
-  Max: 8
+  Max: 15
 
 Layout/EmptyLinesAroundAttributeAccessor:
   Enabled: true

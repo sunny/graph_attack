@@ -85,6 +85,20 @@ extension GraphAttack::RateLimit,
           redis_client: Redis.new(url: "…")
 ```
 
+### Common configuration
+
+To have a default configuration for all rate-limited fields, you can create an
+initializer:
+
+```rb
+GraphAttack.configure do |config|
+  # config.threshold = 15
+  # config.interval = 60
+  # config.on = :ip
+  # config.redis_client = Redis.new
+end
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run

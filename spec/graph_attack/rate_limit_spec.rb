@@ -28,6 +28,10 @@ module Dummy
                 on: :client_id
     end
 
+    field :field_with_defaults, String, null: false do
+      extension GraphAttack::RateLimit
+    end
+
     def inexpensive_field
       'result'
     end
@@ -47,6 +51,10 @@ module Dummy
     def field_with_on_option
       'result'
     end
+
+    def field_with_defaults
+      'result'
+    end
   end
 
   class Schema < GraphQL::Schema
@@ -59,30 +67,37 @@ RSpec.describe GraphAttack::RateLimit do
   let(:redis) { Redis.new }
   let(:context) { { ip: '99.99.99.99' } }
 
-  # Cleanup after ratelimit gem
   before do
+    # Clean up after ratelimit gem.
     redis.scan_each(match: 'ratelimit:*') { |key| redis.del(key) }
+
+    # Clean up configuration changes.
+    GraphAttack.configuration = GraphAttack::Configuration.new
   end
 
   context 'when context has IP key' do
     describe 'fields without rate limiting' do
+      let(:query) { '{ inexpensiveField }' }
+
       it 'returns data' do
-        result = schema.execute('{ inexpensiveField }', context: context)
+        result = schema.execute(query, context: context)
 
         expect(result).not_to have_key('errors')
         expect(result['data']).to eq('inexpensiveField' => 'result')
       end
 
       it 'does not insert rate limits in redis' do
-        schema.execute('{ inexpensiveField }', context: context)
+        schema.execute(query, context: context)
 
         expect(redis.scan_each(match: 'ratelimit:*').count).to eq(0)
       end
     end
 
     describe 'fields with rate limiting' do
+      let(:query) { '{ expensiveField }' }
+
       it 'inserts rate limits in redis' do
-        schema.execute('{ expensiveField }', context: context)
+        schema.execute(query, context: context)
 
         key = 'ratelimit:99.99.99.99:graphql-query-expensiveField'
         expect(redis.scan_each(match: key).count).to eq(1)
@@ -90,7 +105,7 @@ RSpec.describe GraphAttack::RateLimit do
 
       it 'returns data until rate limit is exceeded' do
         4.times do
-          result = schema.execute('{ expensiveField }', context: context)
+          result = schema.execute(query, context: context)
 
           expect(result).not_to have_key('errors')
           expect(result['data']).to eq('expensiveField' => 'result')
@@ -100,12 +115,12 @@ RSpec.describe GraphAttack::RateLimit do
       context 'when rate limit is exceeded' do
         before do
           4.times do
-            schema.execute('{ expensiveField }', context: context)
+            schema.execute(query, context: context)
           end
         end
 
         it 'returns an error' do
-          result = schema.execute('{ expensiveField }', context: context)
+          result = schema.execute(query, context: context)
 
           expected_error = {
             'locations' => [{ 'column' => 3, 'line' => 1 }],
@@ -120,7 +135,7 @@ RSpec.describe GraphAttack::RateLimit do
           let(:context2) { { ip: '203.0.113.43' } }
 
           it 'does not return an error' do
-            result = schema.execute('{ expensiveField }', context: context2)
+            result = schema.execute(query, context: context2)
 
             expect(result).not_to have_key('errors')
             expect(result['data']).to eq('expensiveField' => 'result')
@@ -129,7 +144,65 @@ RSpec.describe GraphAttack::RateLimit do
       end
     end
 
+    describe 'fields with defaults' do
+      let(:query) { '{ fieldWithDefaults }' }
+
+      context 'with no defaults' do
+        it 'raises' do
+          expect do
+            schema.execute(query, context: context)
+          end.to raise_error(GraphAttack::Error, /Missing "threshold:" option/)
+        end
+      end
+
+      context 'with defaults' do
+        let(:new_redis) { Redis.new }
+        let(:context) { { client_token: 'abc89' } }
+
+        before do
+          GraphAttack.configure do |c|
+            c.threshold = 3
+            c.interval = 30
+            c.on = :client_token
+            c.redis_client = new_redis
+          end
+        end
+
+        after do
+          new_redis.scan_each(match: 'ratelimit:*') { |key| new_redis.del(key) }
+        end
+
+        it 'inserts rate limits using the defaults' do
+          schema.execute(query, context: context)
+
+          key = 'ratelimit:abc89:graphql-query-fieldWithDefaults-client_token'
+          expect(new_redis.scan_each(match: key).count).to eq(1)
+        end
+
+        it 'returns an error when the default rate limit is exceeded' do
+          2.times do
+            result = schema.execute(query, context: context)
+
+            expect(result).not_to have_key('errors')
+            expect(result['data']).to eq('fieldWithDefaults' => 'result')
+          end
+
+          result = schema.execute(query, context: context)
+
+          expected_error = {
+            'locations' => [{ 'column' => 3, 'line' => 1 }],
+            'message' => 'Query rate limit exceeded',
+            'path' => ['fieldWithDefaults'],
+          }
+          expect(result['errors']).to eq([expected_error])
+          expect(result['data']).to be_nil
+        end
+      end
+    end
+
     describe 'several fields with rate limiting' do
+      let(:query) { '{ expensiveField expensiveField2 }' }
+
       context 'when one rate limit is exceeded' do
         let(:expected_error) do
           {
@@ -141,18 +214,12 @@ RSpec.describe GraphAttack::RateLimit do
 
         before do
           5.times do
-            schema.execute(
-              '{ expensiveField expensiveField2 }',
-              context: context,
-            )
+            schema.execute(query, context: context)
           end
         end
 
         it 'returns an error message with only the first field' do
-          result = schema.execute(
-            '{ expensiveField expensiveField2 }',
-            context: context,
-          )
+          result = schema.execute(query, context: context)
 
           expect(result['errors']).to eq([expected_error])
           expect(result['data']).to be_nil
@@ -160,7 +227,6 @@ RSpec.describe GraphAttack::RateLimit do
       end
 
       context 'when both rate limits are exceeded' do
-        let(:query) { '{ expensiveField expensiveField2 }' }
         let(:expected_errors) do
           [
             {
@@ -193,31 +259,31 @@ RSpec.describe GraphAttack::RateLimit do
 
     context 'with a custom redis client field' do
       let(:redis) { Dummy::CUSTOM_REDIS_CLIENT }
+      let(:query) { '{ fieldWithCustomRedisClient }' }
 
-      describe 'fields with rate limiting' do
-        it 'inserts rate limits in the custom redis client' do
-          schema.execute('{ expensiveField }', context: context)
+      it 'inserts rate limits in the custom redis client' do
+        schema.execute(query, context: context)
 
-          key = 'ratelimit:99.99.99.99:graphql-query-expensiveField'
-          expect(redis.scan_each(match: key).count).to eq(1)
-        end
+        key = 'ratelimit:99.99.99.99:graphql-query-fieldWithCustomRedisClient'
+        expect(redis.scan_each(match: key).count).to eq(1)
       end
     end
 
     describe 'fields with the on option' do
+      let(:query) { '{ fieldWithOnOption }' }
       let(:context) { { client_id: '0cca3dfc-6638' } }
 
       it 'inserts rate limits in redis' do
-        schema.execute('{ fieldWithOnOption }', context: context)
+        schema.execute(query, context: context)
+
         key = 'ratelimit:0cca3dfc-6638:graphql-query-fieldWithOnOption-' \
               'client_id'
-
         expect(redis.scan_each(match: key).count).to eq(1)
       end
 
       it 'returns data until rate limit is exceeded' do
         9.times do
-          result = schema.execute('{ fieldWithOnOption }', context: context)
+          result = schema.execute(query, context: context)
 
           expect(result).not_to have_key('errors')
           expect(result['data']).to eq('fieldWithOnOption' => 'result')
@@ -227,12 +293,12 @@ RSpec.describe GraphAttack::RateLimit do
       context 'when rate limit is exceeded' do
         before do
           9.times do
-            schema.execute('{ fieldWithOnOption }', context: context)
+            schema.execute(query, context: context)
           end
         end
 
         it 'returns an error' do
-          result = schema.execute('{ fieldWithOnOption }', context: context)
+          result = schema.execute(query, context: context)
 
           expected_error = {
             'locations' => [{ 'column' => 3, 'line' => 1 }],
@@ -249,7 +315,7 @@ RSpec.describe GraphAttack::RateLimit do
           end
 
           it 'does not return an error' do
-            result = schema.execute('{ fieldWithOnOption }', context: context2)
+            result = schema.execute(query, context: context2)
 
             expect(result).not_to have_key('errors')
             expect(result['data']).to eq('fieldWithOnOption' => 'result')
@@ -260,8 +326,10 @@ RSpec.describe GraphAttack::RateLimit do
   end
 
   context 'when context has not IP key' do
+    let(:query) { '{ expensiveField }' }
+
     it 'returns an error' do
-      expect { schema.execute('{ expensiveField }') }.to raise_error(
+      expect { schema.execute(query) }.to raise_error(
         GraphAttack::Error, /Missing :ip key on the GraphQL context/
       )
     end

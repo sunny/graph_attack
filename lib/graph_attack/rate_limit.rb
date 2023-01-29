@@ -3,11 +3,10 @@
 module GraphAttack
   class RateLimit < GraphQL::Schema::FieldExtension
     def resolve(object:, arguments:, **_rest)
-      rate_limited_field = object.context[rate_limited_key]
+      rate_limited_field = object.context[on]
 
-      unless object.context.key?(rate_limited_key)
-        raise GraphAttack::Error,
-              "Missing :#{rate_limited_key} key on the GraphQL context"
+      unless object.context.key?(on)
+        raise GraphAttack::Error, "Missing :#{on} key on the GraphQL context"
       end
 
       if rate_limited_field && calls_exceeded_on_query?(rate_limited_field)
@@ -20,9 +19,9 @@ module GraphAttack
     private
 
     def key
-      on = "-#{options[:on]}" if options[:on]
+      suffix = "-#{on}" if on != :ip
 
-      "graphql-query-#{field.name}#{on}"
+      "graphql-query-#{field.name}#{suffix}"
     end
 
     def calls_exceeded_on_query?(rate_limited_field)
@@ -34,6 +33,7 @@ module GraphAttack
 
     def threshold
       options[:threshold] ||
+        GraphAttack.configuration.threshold ||
         raise(
           GraphAttack::Error,
           'Missing "threshold:" option on the GraphAttack::RateLimit extension',
@@ -42,6 +42,7 @@ module GraphAttack
 
     def interval
       options[:interval] ||
+        GraphAttack.configuration.interval ||
         raise(
           GraphAttack::Error,
           'Missing "interval:" option on the GraphAttack::RateLimit extension',
@@ -49,11 +50,11 @@ module GraphAttack
     end
 
     def redis_client
-      options[:redis_client] || Redis.new
+      options[:redis_client] || GraphAttack.configuration.redis_client
     end
 
-    def rate_limited_key
-      options[:on] || :ip
+    def on
+      options[:on] || GraphAttack.configuration.on
     end
   end
 end

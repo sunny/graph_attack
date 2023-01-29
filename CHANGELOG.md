@@ -1,6 +1,19 @@
 unreleased
 ----------
 
+Feature:
+
+- Add configuration for setting defaults. E.g.:
+
+    ```rb
+    GraphAttack.configure do |config|
+      # config.threshold = 15
+      # config.interval = 60
+      # config.on = :ip
+      # config.redis_client = Redis.new
+    end
+    ```
+
 v2.2.0
 ------
 
