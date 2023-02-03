@@ -118,7 +118,7 @@ tests and linting are pristine by calling `bundle && bin/rake`, then create a
 commit for this version, for example with:
 
 ```sh
-git add .
+git add --patch
 git commit -m v`ruby -rbundler/setup -rgraph_attack/version -e "puts GraphAttack::VERSION"`
 ```
 

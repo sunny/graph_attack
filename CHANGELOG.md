@@ -1,8 +1,10 @@
 unreleased
 ----------
 
-Feature:
+v2.3.0
+------
 
+Feature:
 - Add configuration for setting defaults. E.g.:
 
     ```rb
