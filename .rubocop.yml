@@ -6,6 +6,10 @@ AllCops:
   TargetRubyVersion: 2.7
   DisplayCopNames: true
   NewCops: enable
+  Exclude:
+    - bin/rake
+    - bin/rspec
+    - bin/rubocop
 
 # Do not sort gems in Gemfile, since we are grouping them by functionality.
 Bundler/OrderedGems:
@@ -37,9 +41,6 @@ Metrics/MethodLength:
 # Limit line length.
 Layout/LineLength:
   Max: 80
-  Exclude:
-    - bin/rake
-    - bin/rubocop
 
 # Allow ASCII comments (e.g "…").
 Style/AsciiComments:

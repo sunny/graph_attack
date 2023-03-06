@@ -1,6 +1,9 @@
 unreleased
 ----------
 
+v2.3.1
+------
+
 Fix:
 - Relax Ruby version constraint to allow Ruby 3.2.
 
