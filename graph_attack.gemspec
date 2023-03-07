@@ -47,7 +47,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rubocop', '~> 1.33.0'
 
   # RSpec extension for RuboCop.
-  spec.add_development_dependency 'rubocop-rspec', '~> 2.12.1'
+  spec.add_development_dependency 'rubocop-rspec', '~> 2.17.1'
 
   # Rake extension for RuboCop
   spec.add_development_dependency 'rubocop-rake', '~> 0.6.0'
