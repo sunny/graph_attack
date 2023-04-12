@@ -44,7 +44,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec_junit_formatter', '~> 0.3'
 
   # Ruby code linter.
-  spec.add_development_dependency 'rubocop', '~> 1.48.1'
+  spec.add_development_dependency 'rubocop', '~> 1.50.0'
 
   # RSpec extension for RuboCop.
   spec.add_development_dependency 'rubocop-rspec', '~> 2.19.0'
