@@ -28,6 +28,12 @@ v2.2.0
 Feature:
 - Skip throttling when rate limited field is nil (#19)
 
+⚠️ Possibly breaking change:
+- If your app relied on `Redis.current`, please provide a `redis_client` option
+  explicitly, since
+  [`Redis.current` is deprecated](https://github.com/redis/redis-rb/commit/9745e22db65ac294be51ed393b584c0f8b72ae98)
+  and will be removed in Redis 5.
+
 v2.1.0
 ------
 
