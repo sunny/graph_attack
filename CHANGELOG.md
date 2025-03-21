@@ -1,6 +1,9 @@
 unreleased
 ----------
 
+Support:
+- Drop Ruby 2.7 support.
+
 v2.3.1
 ------
 
