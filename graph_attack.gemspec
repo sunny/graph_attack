@@ -30,25 +30,4 @@ Gem::Specification.new do |spec|
 
   # A Redis-backed rate limiter.
   spec.add_dependency 'ratelimit', '>= 1.0.4'
-
-  # Loads local dependencies.
-  spec.add_development_dependency 'bundler', '~> 2.0'
-
-  # Development tasks runner.
-  spec.add_development_dependency 'rake', '~> 13.0'
-
-  # Testing framework.
-  spec.add_development_dependency 'rspec', '~> 3.0'
-
-  # CircleCI dependency to store spec results.
-  spec.add_development_dependency 'rspec_junit_formatter', '~> 0.3'
-
-  # Ruby code linter.
-  spec.add_development_dependency 'rubocop', '~> 1.56.0'
-
-  # RSpec extension for RuboCop.
-  spec.add_development_dependency 'rubocop-rspec', '~> 2.23.0'
-
-  # Rake extension for RuboCop
-  spec.add_development_dependency 'rubocop-rake', '~> 0.6.0'
 end
