@@ -2,6 +2,9 @@
 
 module Dummy
   CUSTOM_REDIS_CLIENT = Redis.new
+  POOLED_REDIS_CLIENT = ConnectionPool.new(size: 5, timeout: 5) do
+    Redis.new
+  end
 
   class QueryType < GraphQL::Schema::Object
     field :inexpensive_field, String, null: false
@@ -19,6 +22,13 @@ module Dummy
                 threshold: 10,
                 interval: 15,
                 redis_client: CUSTOM_REDIS_CLIENT
+    end
+
+    field :field_with_pooled_redis_client, String, null: false do
+      extension GraphAttack::RateLimit,
+                threshold: 10,
+                interval: 15,
+                redis_client: POOLED_REDIS_CLIENT
     end
 
     field :field_with_on_option, String, null: false do
@@ -48,6 +58,10 @@ module Dummy
       'result'
     end
 
+    def field_with_pooled_redis_client
+      'result'
+    end
+
     def field_with_on_option
       'result'
     end
@@ -69,7 +83,9 @@ RSpec.describe GraphAttack::RateLimit do
 
   before do
     # Clean up after ratelimit gem.
-    redis.scan_each(match: 'ratelimit:*') { |key| redis.del(key) }
+    redis.then do |client|
+      client.scan_each(match: 'ratelimit:*') { |key| client.del(key) }
+    end
 
     # Clean up configuration changes.
     GraphAttack.configuration = GraphAttack::Configuration.new
@@ -266,6 +282,18 @@ RSpec.describe GraphAttack::RateLimit do
 
         key = 'ratelimit:99.99.99.99:graphql-query-fieldWithCustomRedisClient'
         expect(redis.scan_each(match: key).count).to eq(1)
+      end
+    end
+
+    context 'with a pooled redis client field' do
+      let(:redis) { Dummy::POOLED_REDIS_CLIENT }
+      let(:query) { '{ fieldWithPooledRedisClient }' }
+
+      it 'inserts rate limits in the custom redis client' do
+        schema.execute(query, context: context)
+
+        key = 'ratelimit:99.99.99.99:graphql-query-fieldWithPooledRedisClient'
+        expect(redis.then { _1.scan_each(match: key).count }).to eq(1)
       end
     end
 
