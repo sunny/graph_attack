@@ -153,3 +153,7 @@ file for details.
 
 Hat tip to [Rack::Attack](https://github.com/kickstarter/rack-attack) for the
 the name.
+
+Sponsored by [Cults](https://cults3d.com).
+
+![Cults. Logo](https://github.com/user-attachments/assets/3a51b90d-1033-4df5-a903-03668fc4b966)
