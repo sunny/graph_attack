@@ -1,6 +1,9 @@
 unreleased
 ----------
 
+v2.4.0
+------
+
 Feature:
 - Accept ConnectionPool instances as a Redis client.
 
