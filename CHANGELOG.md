@@ -1,6 +1,9 @@
 unreleased
 ----------
 
+Feature:
+- Accept ConnectionPool instances as a Redis client.
+
 Support:
 - Drop Ruby 2.7 support.
 
