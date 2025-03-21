@@ -8,19 +8,19 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 gemspec
 
 # Development tasks runner.
-gem 'rake', '~> 13.0'
+gem 'rake'
 
 # Testing framework.
-gem 'rspec', '~> 3.0'
+gem 'rspec'
 
 # CircleCI dependency to store spec results.
-gem 'rspec_junit_formatter', '~> 0.3'
+gem 'rspec_junit_formatter'
 
 # Ruby code linter.
-gem 'rubocop', '~> 1.74.0'
+gem 'rubocop'
 
 # RSpec extension for RuboCop.
-gem 'rubocop-rspec', '~> 3.5.0'
+gem 'rubocop-rspec'
 
 # Rake extension for RuboCop
-gem 'rubocop-rake', '~> 0.7.1'
+gem 'rubocop-rake'
