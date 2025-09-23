@@ -27,8 +27,12 @@ module GraphAttack
     def calls_exceeded_on_query?(rate_limited_field)
       with_redis_client do |redis_client|
         rate_limit = Ratelimit.new(rate_limited_field, redis: redis_client)
-        rate_limit.add(key)
-        rate_limit.exceeded?(key, threshold: threshold, interval: interval)
+        if rate_limit.exceeded?(key, threshold: threshold, interval: interval)
+          true
+        else
+          rate_limit.add(key)
+          false
+        end
       end
     end
 

@@ -42,6 +42,10 @@ module Dummy
       extension GraphAttack::RateLimit
     end
 
+    field :field_with_threshold_one, String, null: false do
+      extension GraphAttack::RateLimit, threshold: 1, interval: 60
+    end
+
     def inexpensive_field
       'result'
     end
@@ -67,6 +71,10 @@ module Dummy
     end
 
     def field_with_defaults
+      'result'
+    end
+
+    def field_with_threshold_one
       'result'
     end
   end
@@ -120,7 +128,7 @@ RSpec.describe GraphAttack::RateLimit do
       end
 
       it 'returns data until rate limit is exceeded' do
-        4.times do
+        5.times do
           result = schema.execute(query, context: context)
 
           expect(result).not_to have_key('errors')
@@ -130,7 +138,7 @@ RSpec.describe GraphAttack::RateLimit do
 
       context 'when rate limit is exceeded' do
         before do
-          4.times do
+          5.times do
             schema.execute(query, context: context)
           end
         end
@@ -196,7 +204,7 @@ RSpec.describe GraphAttack::RateLimit do
         end
 
         it 'returns an error when the default rate limit is exceeded' do
-          2.times do
+          3.times do
             result = schema.execute(query, context: context)
 
             expect(result).not_to have_key('errors')
@@ -229,7 +237,7 @@ RSpec.describe GraphAttack::RateLimit do
         end
 
         before do
-          5.times do
+          6.times do
             schema.execute(query, context: context)
           end
         end
@@ -259,7 +267,7 @@ RSpec.describe GraphAttack::RateLimit do
         end
 
         before do
-          10.times do
+          11.times do
             schema.execute(query, context: context)
           end
         end
@@ -310,7 +318,7 @@ RSpec.describe GraphAttack::RateLimit do
       end
 
       it 'returns data until rate limit is exceeded' do
-        9.times do
+        10.times do
           result = schema.execute(query, context: context)
 
           expect(result).not_to have_key('errors')
@@ -320,7 +328,7 @@ RSpec.describe GraphAttack::RateLimit do
 
       context 'when rate limit is exceeded' do
         before do
-          9.times do
+          10.times do
             schema.execute(query, context: context)
           end
         end
@@ -349,6 +357,27 @@ RSpec.describe GraphAttack::RateLimit do
             expect(result['data']).to eq('fieldWithOnOption' => 'result')
           end
         end
+      end
+    end
+
+    describe 'field with threshold: 1' do
+      let(:query) { '{ fieldWithThresholdOne }' }
+
+      it 'allows exactly 1 request before blocking the 2nd' do
+        # First request should succeed
+        result = schema.execute(query, context: context)
+        expect(result).not_to have_key('errors')
+        expect(result['data']).to eq('fieldWithThresholdOne' => 'result')
+
+        # Second request should be blocked
+        result = schema.execute(query, context: context)
+        expected_error = {
+          'locations' => [{ 'column' => 3, 'line' => 1 }],
+          'message' => 'Query rate limit exceeded',
+          'path' => ['fieldWithThresholdOne'],
+        }
+        expect(result['errors']).to eq([expected_error])
+        expect(result['data']).to be_nil
       end
     end
   end
