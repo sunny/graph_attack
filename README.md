@@ -18,7 +18,7 @@ class QueryType < GraphQL::Schema::Object
 end
 ```
 
-This would block requests starting from the 15th attempt within a 60-second window by the same IP address. That is, if 15 requests are made, the first 14 will succeed and the 15th will fail.
+This would allow 15 requests per minute by the same IP address, blocking the 16th and subsequent requests within that 60-second window.
 
 ## Requirements
 
