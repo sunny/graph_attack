@@ -1,6 +1,12 @@
 unreleased
 ----------
 
+v2.4.1
+------
+
+Fix:
+- Fix threshold behavior to allow N requests instead of N-1.
+
 v2.4.0
 ------
 
