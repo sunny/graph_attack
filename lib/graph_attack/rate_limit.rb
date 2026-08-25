@@ -18,22 +18,26 @@ module GraphAttack
 
     private
 
+    def calls_exceeded_on_query?(field)
+      with_redis_client do |redis_client|
+        limit = Ratelimit.new(rate_limit_key_name(field), redis: redis_client)
+        if limit.exceeded?(key, threshold: threshold, interval: interval)
+          true
+        else
+          limit.add(key)
+          false
+        end
+      end
+    end
+
     def key
       suffix = "-#{on}" if on != :ip
 
       "graphql-query-#{field.name}#{suffix}"
     end
 
-    def calls_exceeded_on_query?(rate_limited_field)
-      with_redis_client do |redis_client|
-        rate_limit = Ratelimit.new(rate_limited_field, redis: redis_client)
-        if rate_limit.exceeded?(key, threshold: threshold, interval: interval)
-          true
-        else
-          rate_limit.add(key)
-          false
-        end
-      end
+    def rate_limit_key_name(field)
+      "#{redis_prefix}#{field}"
     end
 
     def threshold
@@ -65,6 +69,10 @@ module GraphAttack
 
     def on
       options[:on] || GraphAttack.configuration.on
+    end
+
+    def redis_prefix
+      options[:redis_prefix] || GraphAttack.configuration.redis_prefix
     end
   end
 end

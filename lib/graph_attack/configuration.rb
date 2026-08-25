@@ -15,11 +15,15 @@ module GraphAttack
     # Use a custom Redis client.
     attr_accessor :redis_client
 
+    # Prefix for all rate limit Redis keys.
+    attr_accessor :redis_prefix
+
     def initialize
       @threshold = nil
       @interval = nil
       @on = :ip
       @redis_client = Redis.new
+      @redis_prefix = ""
     end
   end
 

@@ -1,6 +1,10 @@
 unreleased
 ----------
 
+Feature:
+- Add `redis_prefix` configuration to provide a custom prefix to Redis ratelimit
+  keys.
+
 v2.4.1
 ------
 
@@ -30,10 +34,7 @@ Feature:
 
     ```rb
     GraphAttack.configure do |config|
-      # config.threshold = 15
-      # config.interval = 60
-      # config.on = :ip
-      # config.redis_client = Redis.new
+      …
     end
     ```
 

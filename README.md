@@ -18,7 +18,8 @@ class QueryType < GraphQL::Schema::Object
 end
 ```
 
-This would allow 15 requests per minute by the same IP address, blocking the 16th and subsequent requests within that 60-second window.
+This would allow 15 requests per minute by the same IP address, blocking the
+16th and subsequent requests within that 60-second window.
 
 ## Requirements
 
@@ -85,6 +86,17 @@ extension GraphAttack::RateLimit,
           redis_client: Redis.new(url: "…")
 ```
 
+### Custom Redis ratelimit key prefix
+
+Use a custom prefix in front of the Redis ratelimit key:
+
+```rb
+extension GraphAttack::RateLimit,
+          threshold: 15,
+          interval: 60,
+          redis_prefix: "my-app/production/"
+```
+
 ### Common configuration
 
 To have a default configuration for all rate-limited fields, you can create an
@@ -96,6 +108,7 @@ GraphAttack.configure do |config|
   # config.interval = 60
   # config.on = :ip
   # config.redis_client = Redis.new
+  # config.redis_prefix = ""
 end
 ```
 
